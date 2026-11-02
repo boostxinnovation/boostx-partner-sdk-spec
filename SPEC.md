@@ -76,7 +76,6 @@ How changes flow:
 |------|---------|
 | GID | The triple `partner`, `user`, `bet` that identifies one game |
 | signed GID | The GID plus `signature`, an ES256 signature over the GID's canonical bytes made with the partner private key (section 6). The partner docs call this object "GID" (`gid` claim) |
-| Bet ID | The GID as one string, `partner:user:bet`. BoostX uses it internally and never splits it back, since `user` and `bet` may contain `:`. Not to be confused with the partner's own bet id, the `bet` part alone |
 | partner id | The id BoostX assigned to the partner, the GID's `partner` |
 | partner private key | The partner's ES256 signing key: signs the GID, gamepasses, settlements and verify-keys responses |
 | partner public keys | The list of partner public keys a parser accepts for the GID signature; more than one during a key rotation |
@@ -1796,9 +1795,9 @@ The builders' key-first order is [KEYS-19](#keys-19), written in 7.2.
 
 This section defines the signed GID as an SDK builds and verifies it: the object, the canonical bytes its signature
 covers, the ids, the signature form, verification against a list of partner public keys, and the shape of the `gid`
-claim inside an inbound Booster or CheckBet token. The terms GID (the triple `partner`, `user`, `bet`), signed GID (the
-triple plus `signature`) and Bet ID are defined in section 1. For SDK behaviour this section is the authority; the
-partner docs describe the same object for people (GID and GamePassJWT).
+claim inside an inbound Booster or CheckBet token. The terms GID (the triple `partner`, `user`, `bet`) and signed GID
+(the triple plus `signature`) are defined in section 1. For SDK behaviour this section is the authority; the partner
+docs describe the same object for people (GID and GamePassJWT).
 
 Rules of this topic whose primary rule is written in section 5, and so are not repeated here:
 
@@ -1932,7 +1931,7 @@ in a builder or in token parsing. The only bounds are transport: the gamepass re
 ([HTTP-07](#http-07)), which is a limit of the HTTP adapters and not of the parsers. (Vectors: `gidgp.json`.)
 
 <a id="gid-10"></a>**GID-10. `:` is not checked.** An SDK MUST NOT refuse, escape or otherwise treat `:` in `user` or
-`bet`. BoostX joins the triple with `:` into the Bet ID, so bets whose ids differ only in where a `:` falls are one
+`bet`. BoostX joins the triple with `:` into one string, so bets whose ids differ only in where a `:` falls are one
 game; keeping `:` out is the partner's duty, and an SDK's documentation SHOULD say so where it documents the id
 parameters (both SDKs do). (Vectors: `gidgp.json`.)
 
@@ -2132,9 +2131,9 @@ holds whichever is offered.
 Nothing in this subsection is a requirement on an SDK, and none of it has vectors.
 
 <a id="gid-11"></a>**GID-11. A game is the triple.** BoostX identifies a game by `partner`, `user` and `bet` together;
-the signature plays no part, and the Bet ID is the triple joined with `:`. Partner records should therefore be keyed
-by the triple, never by `gid.signature` or the token text, which differ between gamepasses for one game
-([GID-15](#gid-15)). An SDK's documentation should say so; the JS README warns against keying by `gid.signature`.
+the signature plays no part. Partner records should therefore be keyed by the triple, never by `gid.signature` or the
+token text, which differ between gamepasses for one game ([GID-15](#gid-15)). An SDK's documentation should say so;
+the JS README warns against keying by `gid.signature`.
 
 <a id="gid-12"></a>**GID-12. `gid.partner` is the assigned id.** `gid.partner` must be the partner id BoostX assigned. A
 settlement that names an id BoostX does not know is answered 404 `not found`: BoostX does not know this partner id, and
@@ -5033,7 +5032,7 @@ Runner rules, from FORMAT.md:
 Each entry gives the date, the decision and the rules it affects. Decisions win over any rule text that disagrees.
 
 <a id="decision-gid-terminology"></a>**2026-10-18. GID terminology.** GID is the triple `partner`, `user`, `bet`; signed
-GID is the triple plus `signature`; Bet ID is the GID as the one-way string `partner:user:bet`. The partner docs and the
+GID is the triple plus `signature`. The partner docs and the
 SDKs keep calling the signed object "GID" (`gid` claim). Affects: section 1.4 and section 6 throughout.
 
 <a id="decision-canonical-gid-signatures"></a>**2026-10-30. Canonical GID signatures.** BoostX refuses a gamepass whose
