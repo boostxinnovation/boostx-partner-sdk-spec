@@ -55,8 +55,8 @@ This repository is the master of this spec and of the conformance vectors. Two r
 
 | SDK | Repository | Package | Version |
 |-----|-----------|---------|---------|
-| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) | v1.0.0 |
-| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names | v1.0.0 |
+| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) | v1.1.0 |
+| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names | v1.1.0 |
 
 How changes flow:
 

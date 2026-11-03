@@ -22,10 +22,10 @@ repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 
 | Language | Repository | Package | Version |
 |----------|------------|---------|---------|
-| JavaScript and TypeScript | [boostxinnovation/boostx-partner-sdk-js](https://github.com/boostxinnovation/boostx-partner-sdk-js) | npm `@boostxinnovation/partner-sdk` | v1.0.0 |
-| Go | [boostxinnovation/boostx-partner-sdk-go](https://github.com/boostxinnovation/boostx-partner-sdk-go) | module `github.com/boostxinnovation/boostx-partner-sdk-go` | v1.0.0 |
+| JavaScript and TypeScript | [boostxinnovation/boostx-partner-sdk-js](https://github.com/boostxinnovation/boostx-partner-sdk-js) | npm `@boostxinnovation/partner-sdk` | v1.1.0 |
+| Go | [boostxinnovation/boostx-partner-sdk-go](https://github.com/boostxinnovation/boostx-partner-sdk-go) | module `github.com/boostxinnovation/boostx-partner-sdk-go` | v1.1.0 |
 
-Both conform to boostx-partner-sdk-spec v1.0.0.
+Both conform to boostx-partner-sdk-spec v1.1.0.
 
 ## Generating an SDK in another language
 
