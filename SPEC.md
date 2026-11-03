@@ -1,6 +1,6 @@
 # Partner SDK Specification
 
-**Version:** v1.0.0 ([CHANGELOG.md](CHANGELOG.md))
+**Version:** v1.1.0 ([CHANGELOG.md](CHANGELOG.md))
 **Scope:** the behaviour of a BoostX partner SDK: key loading and key stores, the five token types, the signed GID, the
 three partner endpoints, the settlement client and the X helpers.
 **Vectors:** [`vectors/`](vectors/) (format: [`vectors/FORMAT.md`](vectors/FORMAT.md)).
@@ -359,8 +359,8 @@ SETTLE-61.
 this spec lists is normative: the first failing check is reported.
 
 - Builders check the private key first, as far as it can be checked without signing ([KEYS-19](#keys-19)), then the
-  parameters in the listed order, with id well-formedness last ([GAMEPASS-08](#gamepass-08), [SETTLE-31](#settle-31),
-  and [GID-34](#gid-34) for `buildGID`).
+  parameters in the listed order, with the id checks of [GAMEPASS-07](#gamepass-07) step 3 (well-formed, no `:`,
+  length) last ([GAMEPASS-08](#gamepass-08), [SETTLE-31](#settle-31), and [GID-34](#gid-34) for `buildGID`).
 - Parsers check key configuration first, the BoostX key before the partner keys ([KEYS-46](#keys-46),
   [INBOUND-31](#inbound-31), [INBOUND-59](#inbound-59)), then follow [INBOUND-32](#inbound-32) or
   [VERIFYKEYS-46](#verifykeys-46).
@@ -502,10 +502,13 @@ currency rule](#decision-currency-case)). Settles: GAMEPASS-14, GAMEPASS-15, GAM
 
 <a id="p-builder-ids"></a>**P-builder-ids. Builder id rules.** `partner`, `user` and `bet` are required. Absent, `null`
 or empty MUST be `missing_claim`, and any other non-string (a number included) `invalid_claim`, never converted to text.
-An id that is not well-formed Unicode is `invalid_claim` ([P-surrogates](#p-surrogates)). `:` and whitespace are not
-checked. An empty partner id given to key-store registration is also `missing_claim` ([KEYS-56](#keys-56)); a lookup of
-one is `unknown_partner`, since no such id can be registered ([KEYS-58](#keys-58)). Why: never coercing a value means a
-numeric bet id cannot silently become different signed text. Settles: GAMEPASS-07, GID-35, SETTLE-10, KEYS-56, HTTP-58.
+An id that is not well-formed Unicode is `invalid_claim` ([P-surrogates](#p-surrogates)), and so is an id that contains
+`:` or is longer than its limit ([GID-09](#gid-09), [GID-10](#gid-10)); whitespace is not checked. Key-store
+registration and the verify-keys builders check neither `:` nor length, but an empty partner id given to registration is
+also `missing_claim` ([KEYS-56](#keys-56)); a lookup of one is `unknown_partner`,
+since no such id can be registered ([KEYS-58](#keys-58)). Why: never coercing a value means a numeric bet id cannot
+silently become different signed text. Settles: GAMEPASS-07, GID-35, SETTLE-10, KEYS-56, HTTP-58, GID-09, GID-10,
+SETTLE-12, SETTLE-74.
 
 ## 3. SDK surface
 
@@ -627,8 +630,9 @@ Signs a GID: `buildGID` in sections 6 and 7 (section 6.3).
   empty is `missing_claim`, and any other non-string `invalid_claim`, never converted to text
   ([GAMEPASS-07](#gamepass-07)).
 - **Result.** The signed GID: the three ids exactly as given and an 86-character `signature` ([GID-14](#gid-14)).
-- **Errors.** List A of [KEYS-19](#keys-19): `invalid_private_key`; the ids' presence and type; their well-formedness
-  (`invalid_claim`); a signing failure (`invalid_private_key`). The field tokens are `partner`, `user` and `bet`.
+- **Errors.** List A of [KEYS-19](#keys-19): `invalid_private_key`; the ids' presence and type; their well-formedness,
+  `:` and length (`invalid_claim`); a signing failure (`invalid_private_key`). The field tokens are `partner`, `user`
+  and `bet`.
 - **I/O.** None. It may be asynchronous where the platform's signing is.
 - **Examples.** JS `buildGID(privateKey, partner, user, bet)`; Go `tokens.BuildGID(partner, user, bet, privateKey)`,
   which takes the key last.
@@ -1863,7 +1867,9 @@ verifying the built signature over a given `canonical` text.)
 
 <a id="gid-37"></a>**GID-37. Control and astral characters are allowed.** U+0000 and every other C0 control character,
 U+2028, U+2029 and characters outside the Basic Multilingual Plane are valid in an id. A builder MUST NOT refuse them;
-they are signed in the escaped form (C0) or literal form (the rest) of [GID-03](#gid-03). (Vectors: `gidgp.json`.)
+they are signed in the escaped form (C0) or literal form (the rest) of [GID-03](#gid-03). The limits of
+[GID-09](#gid-09) still apply, each such character counting as one: a 33rd astral character in `partner` is refused for
+the length, not for being astral. (Vectors: `gidgp.json`.)
 
 <a id="gid-47"></a>**GID-47. Decoded values.** On verification the canonical-form check of the signature
 ([GID-16](#gid-16)) and the canonical bytes ([GID-02](#gid-02)) apply to the decoded JSON string values: escapes inside
@@ -1893,17 +1899,20 @@ parameters of every builder that signs a GID, checked in this way:
 2. Any other value that is not a string, a number or boolean included: `invalid_claim`, naming the parameter. The value
    is never converted to text. A statically typed SDK meets this through its parameter types, and conformance runners
    skip the cases it cannot express (FORMAT section 7).
-3. A string that is not well-formed Unicode: `invalid_claim`, naming the parameter. Well-formed means: in a language
-   whose strings are UTF-16 code units, no unpaired surrogate (JS `String.prototype.isWellFormed()`); in a language
-   whose strings are bytes, valid UTF-8 by RFC 3629, so no overlong form, no encoded surrogate (`ED A0 80` to `ED BF
-   BF`) and nothing above U+10FFFF (Go `utf8.ValidString`); in a language whose strings are code points, no code point
-   from U+D800 to U+DFFF. The test is on the SDK's own string type, so the same surrogate pair can differ: Python can
-   hold a high and a low surrogate as two code points (text decoded with `surrogatepass`), which is refused, while JS
-   reads the same two UTF-16 units as one well-formed character.
+3. A string that is not well-formed Unicode, then one that contains `:` ([GID-10](#gid-10)), then one longer than its
+   limit of 32 (`partner`), 64 (`user`) or 96 (`bet`) Unicode scalar values ([GID-09](#gid-09)): `invalid_claim`, naming
+   the parameter. Well-formed means: in a language whose strings are UTF-16 code units, no unpaired surrogate (JS
+   `String.prototype.isWellFormed()`); in a language whose strings are bytes, valid UTF-8 by RFC 3629, so no overlong
+   form, no encoded surrogate (`ED A0 80` to `ED BF BF`) and nothing above U+10FFFF (Go `utf8.ValidString`); in a
+   language whose strings are code points, no code point from U+D800 to U+DFFF. The test is on the SDK's own string
+   type, so the same surrogate pair can differ: Python can hold a high and a low surrogate as two code points (text
+   decoded with `surrogatepass`), which is refused, while JS reads the same two UTF-16 units as one well-formed
+   character.
 
-Steps 1 and 2 run for `partner`, then `user`, then `bet`, early in the builder's order; step 3 runs for the three ids
-after every other parameter check ([KEYS-19](#keys-19)). An SDK MUST NOT check `:` or whitespace, and MUST NOT trim,
-case-fold or normalise an id ([GID-08](#gid-08), [GID-10](#gid-10)). Step 1 refuses an empty id because one is almost
+Steps 1 and 2 run for `partner`, then `user`, then `bet`, early in the builder's order. Step 3 runs after every other
+parameter check ([KEYS-19](#keys-19)), per id: `partner`, then `user`, then `bet`, each through all three of its checks
+before the next, so a `:` in `partner` is reported ahead of an ill-formed `user`. An SDK MUST NOT check whitespace, and
+MUST NOT trim, case-fold or normalise an id ([GID-08](#gid-08)). Step 1 refuses an empty id because one is almost
 always a fault in the caller's code. Also covers: GID-35. The settlement builder's ids follow this same rule
 ([SETTLE-10](#settle-10)). Applies [P-builder-ids](#p-builder-ids), [P-surrogates](#p-surrogates) and
 [P-null-absent](#p-null-absent). (Vectors: `gidgp.json`.)
@@ -1925,15 +1934,25 @@ Unicode-normalise them: whitespace-only and padded ids build and verify, and an 
 matched to keys code unit for code unit. Key lookups follow the same rule for the partner id ([KEYS-48](#keys-48)).
 (Vectors: `gidgp.json`.)
 
-<a id="gid-09"></a>**GID-09. No length limit.** An SDK MUST NOT impose a maximum length on `partner`, `user` or `bet`,
-in a builder or in token parsing. The only bounds are transport: the gamepass reaches BoostX inside the game URL
-([GAMEPASS-37](#gamepass-37)), and an inbound token must fit the handlers' 65536-byte request-body cap
-([HTTP-07](#http-07)), which is a limit of the HTTP adapters and not of the parsers. (Vectors: `gidgp.json`.)
+<a id="gid-09"></a>**GID-09. Id length.** A builder that signs a GID MUST refuse a `partner` longer than 32, a `user`
+longer than 64 or a `bet` longer than 96 Unicode scalar values with `invalid_claim`, naming that id, checked as
+[GAMEPASS-07](#gamepass-07) step 3 orders it. The length counts scalar values, never bytes, UTF-16 code units or
+grapheme clusters: JS `[...s].length`, Java `s.codePointCount(0, s.length())`, Go `utf8.RuneCountInString`, Python
+`len`, Swift `s.unicodeScalars.count` (not `s.count`). A character outside the Basic Multilingual Plane counts as one,
+and so does a character the canonical text writes as an escape ([GID-03](#gid-03)). An empty id is `missing_claim`
+([GAMEPASS-07](#gamepass-07) step 1), so the limit is an upper bound only. Parsing an inbound token MUST NOT check the
+length, since a game opened before this rule keeps its gid for life. Why: BoostX identifies a game by the three ids
+([GID-11](#gid-11)) and refuses a gamepass whose ids break this rule (decision [ids hold no `:` and have bounded
+lengths](#decision-gid-id-rules)). (Vectors: `gidgp.json`, `inbound.json`.)
 
-<a id="gid-10"></a>**GID-10. `:` is not checked.** An SDK MUST NOT refuse, escape or otherwise treat `:` in `user` or
-`bet`. BoostX joins the triple with `:` into one string, so bets whose ids differ only in where a `:` falls are one
-game; keeping `:` out is the partner's duty, and an SDK's documentation SHOULD say so where it documents the id
-parameters (both SDKs do). (Vectors: `gidgp.json`.)
+<a id="gid-10"></a>**GID-10. No `:` in an id.** A builder that signs a GID MUST refuse a `partner`, `user` or `bet` that
+contains U+003A `:` with `invalid_claim`, naming that id, checked as [GAMEPASS-07](#gamepass-07) step 3 orders it. Only
+U+003A is refused: the full-width U+FF1A and other look-alikes are ordinary characters, and nothing is normalised before
+the check ([GID-08](#gid-08)). Parsing an inbound token MUST NOT check for `:`, since a game opened before this rule
+keeps its gid for life. Why: BoostX identifies a game by the three ids ([GID-11](#gid-11)) and refuses a gamepass whose
+ids break this rule (decision [ids hold no `:` and have bounded lengths](#decision-gid-id-rules)). An SDK's
+documentation SHOULD state this rule and the limits of [GID-09](#gid-09) where it documents the id parameters.
+(Vectors: `gidgp.json`, `inbound.json`.)
 
 ### 6.3 Signing
 
@@ -2214,7 +2233,8 @@ List A, `buildGID`:
 
 1. The private key: `invalid_private_key`.
 2. `partner`, then `user`, then `bet`: presence and type ([GAMEPASS-07](#gamepass-07) steps 1 and 2).
-3. `partner`, then `user`, then `bet`: well-formed Unicode ([GAMEPASS-07](#gamepass-07) step 3).
+3. `partner`, then `user`, then `bet`, each: well-formed Unicode, no `:`, within its length
+   ([GAMEPASS-07](#gamepass-07) step 3).
 4. Sign; a failure is `invalid_private_key`.
 
 List B, the gamepass builder:
@@ -2227,7 +2247,8 @@ List B, the gamepass builder:
 6. `xMin`, then `xMax` ([GAMEPASS-24](#gamepass-24)), then `xDecimals` ([GAMEPASS-26](#gamepass-26)).
 7. The type of `eventTitle` ([GAMEPASS-29](#gamepass-29)), then of `demo` ([GAMEPASS-32](#gamepass-32)); reachable only
    in a language that lets a caller pass another type.
-8. `partner`, then `user`, then `bet`: well-formed Unicode ([GAMEPASS-07](#gamepass-07) step 3).
+8. `partner`, then `user`, then `bet`, each: well-formed Unicode, no `:`, within its length
+   ([GAMEPASS-07](#gamepass-07) step 3).
 9. Sign the GID, then the token; a failure is `invalid_private_key`.
 
 A missing parameter set reads as an empty one ([GAMEPASS-48](#gamepass-48)), so with a usable key its first failure is
@@ -2235,10 +2256,10 @@ A missing parameter set reads as an empty one ([GAMEPASS-48](#gamepass-48)), so 
 faults.)
 
 <a id="gamepass-09"></a>**GAMEPASS-09. One error per call.** The gamepass builder reports exactly one error, the first
-failing step of list B ([KEYS-19](#keys-19)). Id well-formedness is checked after every other parameter, as part of
-building the GID, and a key that passed step 1 can still fail at step 9. The category and the field are those the step
-names; message texts beyond the `missing required claim: <field>` / `invalid claim value: <field>` phrasing are free
-([HTTP-60](#http-60)). (Vectors: `gidgp.json`.)
+failing step of list B ([KEYS-19](#keys-19)). The id checks (well-formedness, `:`, length) run after every other
+parameter, as part of building the GID, and a key that passed step 1 can still fail at step 9. The category and the
+field are those the step names; message texts beyond the `missing required claim: <field>` /
+`invalid claim value: <field>` phrasing are free ([HTTP-60](#http-60)). (Vectors: `gidgp.json`.)
 
 <a id="gamepass-06"></a>**GAMEPASS-06. The gid is the SDK's own.** The builder builds `gamepass.gid` with its own
 `buildGID` over the `partner`, `user` and `bet` parameters and the private key it was given. It MUST NOT accept a gid, a
@@ -2960,7 +2981,9 @@ therefore answers a store verdict that is not a boolean 500 rather than pass it 
   `exp`, `nbf`, `iss` or `aud`. Their segments are canonical unpadded base64url and the signature a 64-byte `r || s`.
 - The `gid` is the creating gamepass's signed GID, exactly its four members, echoed for the game's life. BoostX refuses
   a gamepass whose ids are not well-formed Unicode when the game opens (decision [lone-surrogate
-  ids](#decision-lone-surrogates)), so a lone surrogate never reaches these tokens.
+  ids](#decision-lone-surrogates)), so a lone surrogate never reaches these tokens. It also refuses a gamepass whose ids
+  contain `:` or are longer than their limits ([GID-09](#gid-09), [GID-10](#gid-10); decision [ids hold no `:` and have
+  bounded lengths](#decision-gid-id-rules)), so such ids reach these tokens only from a game opened before that rule.
 - `boost` is always finite and greater than 0: BoostX never signs a Booster whose boost is not, which keeps JSON `null`
   off the wire (decision [minimum stake 0.01](#decision-minimum-stake)).
 - The calls are `POST` with `Content-Type: application/json` and the body `{"checkbetJWT": …}` or
@@ -3111,12 +3134,12 @@ because one is almost always a fault in the caller's code. (Vectors: settle.json
 <a id="settle-11"></a>**SETTLE-11. Ids are well-formed Unicode.** An id that is not well-formed Unicode MUST be refused
 with `invalid_claim` naming that id, before anything is signed ([P-surrogates](#p-surrogates), decision [lone-surrogate
 ids](#decision-lone-surrogates)). In a language with UTF-16 strings that means an unpaired surrogate (JS
-`isWellFormed()`); in a language with byte strings, invalid UTF-8 (Go `utf8.ValidString`). The check runs last among the
-parameter checks (SETTLE-31), on `partner`, `user` and `bet` in that order. (Vectors: settle.json, with the `$illFormed`
-input of FORMAT.md section 4.)
+`isWellFormed()`); in a language with byte strings, invalid UTF-8 (Go `utf8.ValidString`). The check runs in step 12 of
+SETTLE-31, after every other parameter check, on `partner`, `user` and `bet` in that order, each id ahead of its own `:`
+and length checks. (Vectors: settle.json, with the `$illFormed` input of FORMAT.md section 4.)
 
-<a id="settle-12"></a>**SETTLE-12. `:` and whitespace are not checked.** The builder MUST NOT refuse `:` or whitespace
-in any id. Keeping `:` out of `user` and `bet` is the partner's duty, which the SDK README states ([GID-10](#gid-10)). A
+<a id="settle-12"></a>**SETTLE-12. No `:`; whitespace is not checked.** The builder MUST refuse an id that contains
+U+003A `:` with `invalid_claim` naming that id ([GID-10](#gid-10)), and MUST NOT refuse whitespace in any id. A
 settlement is identified by its `partner`, `user`, `bet` and `version` as four separate values. (Vectors: settle.json.)
 
 <a id="settle-13"></a>**SETTLE-13. Status set.** `status` MUST be exactly one of `win`, `lose`, `cancelled`, `refund`,
@@ -3212,9 +3235,9 @@ exactly as given, with no trimming, case folding or Unicode normalisation, in th
 in the client's key-store lookup. The in-memory key store matches the partner id byte for byte (KEYS group). BoostX
 matches `gid.partner` byte for byte too, with no normalisation. (Vectors: settle.json.)
 
-<a id="settle-74"></a>**SETTLE-74. No length limits.** The SDK MUST NOT apply a length limit to `partner`, `user` or
-`bet`, or to the token. (Vectors: `settle.json`, with long ids; the absence of a limit cannot be tested beyond a finite
-case.)
+<a id="settle-74"></a>**SETTLE-74. Id length; no token length limit.** The builder MUST refuse an id longer than its
+[GID-09](#gid-09) limit, 32 for `partner`, 64 for `user` and 96 for `bet` Unicode scalar values, with `invalid_claim`
+naming that id. The SDK MUST NOT limit the token's length ([KEYS-43](#keys-43)). (Vectors: `settle.json`.)
 
 <a id="settle-31"></a>**SETTLE-31. Builder check order.** The settlement form of [KEYS-19](#keys-19) (duplicate set
 KEYS-19, GAMEPASS-08, GID-34, SETTLE-31; [P-check-order](#p-check-order)). The builder MUST run these checks in this
@@ -3231,7 +3254,8 @@ order and report the first that fails:
 9. `version` (SETTLE-23).
 10. `xSettle`, when given (SETTLE-28).
 11. `settledAt`: presence, then range (SETTLE-29, SETTLE-30).
-12. Well-formedness of `partner`, `user`, `bet`, in that order (SETTLE-11).
+12. `partner`, then `user`, then `bet`, each: well-formed (SETTLE-11), no `:` (SETTLE-12), within its length
+    (SETTLE-74).
 13. Signing the GID and the token: a key that passed step 1 but cannot sign is `invalid_private_key` (SETTLE-33).
 
 This order binds SDKs only; BoostX's own order is not part of this specification. (Vectors: settle.json, keys.json,
@@ -4992,9 +5016,9 @@ built with `demo: true`, [GAMEPASS-32](#gamepass-32)) and with Test integration 
 |------|-------|--------------|
 | `testkeys.json` | (data) | The shared key pairs and fixed GID signatures |
 | `keys.json` | 435 | Key loading (PEM framing, labels, DER structure, curves, points, scalars, embedded public keys), key usability, the in-memory store's registration and lookups, the builders' key checks, JWS segments and header (`alg`, `crit`, base64url, signature length), payload bytes and JSON, time claims, store answers in handlers and the client (sections 5, 11.5) |
-| `gidgp.json` | 245 | `buildGID` and its canonical bytes, GID verification against key lists, the inbound `gid` shape, the gamepass builder's check order, ids, stake, currency, xrange, event title and demo, and the X helpers (sections 6, 7) |
-| `inbound.json` | 390 | Booster and CheckBet extraction and parsing: framing, the root claim, the `gid`, keys, the normative check order, Booster claims, `iat`, `exp`, `nbf`, and their handler answers (section 8) |
-| `settle.json` | 268 | The settlement builder's parameters and order, client construction, the request, acceptance, error text, time limit and cancellation (section 9) |
+| `gidgp.json` | 276 | `buildGID` and its canonical bytes, GID verification against key lists, the inbound `gid` shape, the gamepass builder's check order, ids, stake, currency, xrange, event title and demo, and the X helpers (sections 6, 7) |
+| `inbound.json` | 393 | Booster and CheckBet extraction and parsing: framing, the root claim, the `gid`, keys, the normative check order, Booster claims, `iat`, `exp`, `nbf`, and their handler answers (section 8) |
+| `settle.json` | 275 | The settlement builder's parameters and order, client construction, the request, acceptance, error text, time limit and cancellation (section 9) |
 | `verifykeys.json` | 369 | Verify-keys builders, extraction, the request and response parsers, reasons and their order, the window, and the `/verify-keys` answers (section 10) |
 | `http.json` | 362 | Routing, methods, the request body, the handler pipeline, key-store and bet-store answers, construction errors (section 11) |
 
@@ -5099,6 +5123,15 @@ scalar, optional `[0]` parameters naming P-256 and the optional `[1]` of the dec
 octets after the structure, or after the `ECPrivateKey` inside the `privateKey` octet string, are refused, as they are
 for a public key. Each SDK checks this itself rather than through its platform's parser. Affects: [KEYS-05](#keys-05),
 [KEYS-13](#keys-13), [KEYS-63](#keys-63).
+
+<a id="decision-gid-id-rules"></a>**2026-11-03. Ids hold no `:` and have bounded lengths.** `partner`, `user` and `bet`
+contain no U+003A `:`, and `partner` is at most 32, `user` at most 64 and `bet` at most 96 Unicode scalar values long.
+Only U+003A is refused, nothing is normalised before the checks, and an empty id stays `missing_claim`. Every builder
+that signs a GID refuses an id that breaks either rule with `invalid_claim` naming it; parsing an inbound token checks
+neither. BoostX refuses such a gamepass when the game opens. Affects: [GID-09](#gid-09), [GID-10](#gid-10),
+[GAMEPASS-07](#gamepass-07), [GAMEPASS-09](#gamepass-09), [GID-37](#gid-37), [KEYS-19](#keys-19),
+[SETTLE-11](#settle-11), [SETTLE-12](#settle-12), [SETTLE-31](#settle-31), [SETTLE-74](#settle-74),
+[P-builder-ids](#p-builder-ids), [P-check-order](#p-check-order).
 
 ## 14. Platform notes (informative)
 

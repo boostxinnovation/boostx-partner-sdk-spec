@@ -137,13 +137,13 @@ documentation it asks for.
 
 Some rules that do have vectors also ask for documentation, which no case can check: [KEYS-44](SPEC.md#keys-44) and
 [HTTP-69](SPEC.md#http-69) (a key store matches ids byte for byte and never falls back to a fixed key set),
-[KEYS-52](SPEC.md#keys-52) (a key store tolerates concurrent calls), [GID-10](SPEC.md#gid-10) (keep `:` out of
-`user` and `bet`), [GAMEPASS-03](SPEC.md#gamepass-03) (build a gamepass right before the game opens with it),
-[SETTLE-18](SPEC.md#settle-18) (0 is sent for an `amount` or `version` the SDK cannot tell from unset),
-[SETTLE-51](SPEC.md#settle-51) (any 2xx with the acceptance body is an acceptance), [SETTLE-76](SPEC.md#settle-76)
-(the cancellation primitive, and how to tell a cancellation from a time-out), [HTTP-29](SPEC.md#http-29) (the bet
-store is idempotent), [HTTP-34](SPEC.md#http-34) (an unknown bet is `false`, not an error) and
-[HTTP-66](SPEC.md#http-66) (a store wrapper forwards the optional check).
+[KEYS-52](SPEC.md#keys-52) (a key store tolerates concurrent calls), [GID-10](SPEC.md#gid-10) (state the `:` rule and
+the length limits where the id parameters are documented), [GAMEPASS-03](SPEC.md#gamepass-03) (build a gamepass right
+before the game opens with it), [SETTLE-18](SPEC.md#settle-18) (0 is sent for an `amount` or `version` the SDK cannot
+tell from unset), [SETTLE-51](SPEC.md#settle-51) (any 2xx with the acceptance body is an acceptance),
+[SETTLE-76](SPEC.md#settle-76) (the cancellation primitive, and how to tell a cancellation from a time-out),
+[HTTP-29](SPEC.md#http-29) (the bet store is idempotent), [HTTP-34](SPEC.md#http-34) (an unknown bet is `false`, not an
+error) and [HTTP-66](SPEC.md#http-66) (a store wrapper forwards the optional check).
 
 ## Definition of done
 
