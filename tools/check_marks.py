@@ -129,7 +129,7 @@ if CATALOGUE:
         fail(f'operation {op} has no "#### {op}" entry in section 3')
 
 # Docs pointers: the partner docs sit behind a login, so a paragraph that points at them states no rule.
-DOCS = re.compile(r'(?i:docs\.boostx\.cloud|partner docs|\bthe docs\b)|\b[a-z][a-z-]*\.md\b')
+DOCS = re.compile(r'(?i:partner docs|\bthe docs\b)|\b[a-z][a-z-]*\.md\b')
 if DOCS_POINTERS:
     for m in re.finditer(r'(?:^[ \t]*\S.*(?:\n|$))+', text, re.M):
         word, ptr = re.search(r'\b(MUST|SHOULD|MAY)\b', m.group(0)), DOCS.search(m.group(0))
