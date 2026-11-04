@@ -44,7 +44,7 @@ Out of scope: a gamepass parser (BoostX parses gamepasses; the Go SDK keeps a de
 |--------|-----------------|
 | This spec | Everything an SDK does: validation gates, check orders, error categories, handler answers, client behaviour, and what BoostX sends and accepts as far as an SDK depends on it |
 | The conformance vectors (section 12) | This spec in executable form, mirrored byte for byte into every SDK's test suite |
-| Partner docs, published at `docs.boostx.cloud` | Context for people: the integration flow, onboarding, key setup, the game. They describe the same wire contract and are never the source of an SDK rule |
+| Partner docs, which BoostX opens to its partners | Context for people: the integration flow, onboarding, key setup, the game. They describe the same wire contract and are never the source of an SDK rule |
 
 A disagreement between the partner docs and this spec is a defect. It is settled by a decision (section 13), and the
 docs, this spec, the reference SDKs and the vectors change together.

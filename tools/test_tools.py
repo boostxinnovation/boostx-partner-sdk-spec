@@ -155,7 +155,7 @@ class ToolsTest(unittest.TestCase):
     def test_docs_pointers_carry_no_rule(self):
         r = self._marks('--docs-pointers')
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        for pointer in ('the partner docs', '`docs.boostx.cloud`', 'the docs', '`rounds.md`'):
+        for pointer in ('the partner docs', 'the docs', '`rounds.md`'):
             r = self._marks('--docs-pointers', lambda t: t + f'\nAn SDK MUST do this, as {pointer} say.\n')
             self.assertEqual(r.returncode, 1, pointer + '\n' + r.stdout + r.stderr)
             self.assertIn('docs pointer', r.stdout)

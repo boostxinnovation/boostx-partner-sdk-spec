@@ -48,8 +48,8 @@ python3 -m unittest discover tools
 
 ## Partner docs
 
-The partner docs at https://docs.boostx.cloud describe the integration for partners with access: onboarding, keys and
-the game. They give context; the behaviour of an SDK is defined here.
+The partner docs, which BoostX opens to its partners, describe the integration for them: onboarding, keys and the
+game. They give context; the behaviour of an SDK is defined here.
 
 ## Contact
 
