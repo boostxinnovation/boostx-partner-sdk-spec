@@ -24,6 +24,10 @@ The spec now names the partner docs' sections by their current titles: Keys and 
 Integration details (section 8), and the Settlement page's POST /api/integration/settlement and Retries
 ([SETTLE-64](SPEC.md#settle-64)).
 
+From this release the reference SDKs carry the spec's version number: v1.2.0 of each implements spec v1.2.0, and the
+spec and both SDKs are released together under one number (section 1.3). Until now only spec v1.0.1 had no SDK release
+of the same number.
+
 ## v1.1.0
 
 Every builder that signs a GID (`gid.build`, `gamepass.create`, `settlement.create`, and `client.submit` through the

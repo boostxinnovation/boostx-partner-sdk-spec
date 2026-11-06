@@ -62,6 +62,9 @@ How changes flow:
 
 - A change to SDK behaviour starts here: the rule in this spec and the vectors change together, in one spec release
   whose CHANGELOG entry lists the rule ids and vector cases it changes. The reference SDKs follow it.
+- From v1.2.0 the reference SDKs carry this spec's version number: release vX.Y.Z of each implements spec vX.Y.Z. A
+  release of any of the three is a release of all three under that number, so a repository with nothing else to change
+  still gets a release, whose CHANGELOG entry says so.
 - Every SDK keeps an exact, byte-for-byte mirror of `vectors/`, checked against a pinned commit of this repository, and
   changes it only by moving the pin (section 12.1).
 - A change partners can see also changes the partner docs and gets an entry in their changelog.

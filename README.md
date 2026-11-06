@@ -27,6 +27,9 @@ repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 
 Both conform to boostx-partner-sdk-spec v1.1.0.
 
+From v1.2.0 the reference SDKs carry this spec's version number: release vX.Y.Z of each implements spec vX.Y.Z, and
+the spec and both SDKs are released together.
+
 ## Generating an SDK in another language
 
 Point your AI coding agent at [AGENTS.md](AGENTS.md). An SDK that passes every vector, skipping only what
