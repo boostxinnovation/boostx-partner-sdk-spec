@@ -2965,10 +2965,10 @@ or 525, BoostX retries up to three times (after about 200, 500 and 1000 ms) with
 (b) A round the partner did not acknowledge is played again at the player's next spin after reopening, as a new token
 with the same `gid`, `round`, `boost` and `final` and a fresh `iat`. (c) A failed jackpot round is re-sent under the
 same `round` `N + 1`, still `jackpot: true, final: true`, with the same boost, and regular round `N` is not re-sent.
-BoostX fixes a jackpot round's `xBase` and boost before it first sends the round, so neither a later gamepass's `x` nor
-a new exchange rate recalculates them. (d) Concurrent requests can deliver one round
-twice, and a delayed copy of an older round can arrive after a newer one. Hence INBOUND-07, the absence of an age check
-(INBOUND-42) and the replay rule of INBOUND-51. (Informative.)
+BoostX fixes a jackpot round's `xBase` and boost before it first sends the round, so a later gamepass's `x` does not
+recalculate them. (d) Concurrent requests can deliver one round twice, and a delayed copy of an older round can arrive
+after a newer one. Hence INBOUND-07, the absence of an age check (INBOUND-42) and the replay rule of INBOUND-51.
+(Informative.)
 
 <a id="inbound-51"></a>**INBOUND-51. Every verified round reaches the bet store.** A handler MUST hand every verified
 Booster to the bet store, replays and late rounds included: an SDK neither filters replays nor tracks rounds
@@ -5147,9 +5147,8 @@ neither. BoostX refuses such a gamepass when the game opens. Affects: [GID-09](#
 <a id="decision-jackpot-result-fixed"></a>**2026-11-06. A jackpot round keeps its result.** BoostX fixes a jackpot
 round's `xBase` and boost before it first sends the round, and every attempt, a retry or a re-send after a reopen, sends
 that result: the same `round`, the same boost, and the `xBase` of the entry during which BoostX fixed it. A later
-gamepass's `x` and a new exchange rate do not recalculate it, and BoostX computes its X as `playerX` does. Affects:
-section 1.6, [GAMEPASS-21](#gamepass-21), [GAMEPASS-44](#gamepass-44), [INBOUND-49](#inbound-49),
-[INBOUND-50](#inbound-50).
+gamepass's `x` does not recalculate it, and BoostX computes its X as `playerX` does. Affects: section 1.6,
+[GAMEPASS-21](#gamepass-21), [GAMEPASS-44](#gamepass-44), [INBOUND-49](#inbound-49), [INBOUND-50](#inbound-50).
 
 ## 14. Platform notes (informative)
 

@@ -4,13 +4,13 @@
 
 BoostX fixes a jackpot round's `xBase` and boost before it first sends the round, and every attempt sends that result: a
 retry or a re-send after a reopen carries the same `round` `N + 1`, the same boost and `jackpot: true, final: true`, and
-neither a later gamepass's `x` nor a new exchange rate recalculates it. A jackpot round therefore keeps the `x` of the
-entry during which BoostX fixed its result, normally the entry that first sent it, and BoostX computes its X as
-`playerX` does, so `playerX` on that `xBase` gives the X the player saw. The token carries no `xBase`: when the first
-attempt never reached the partner and a later entry changed `x`, the token alone cannot tell which entry's `x` applies.
-Why: v1.1.0 said that a jackpot round sent again could carry another boost and took the `x` of the entry that sent it
-again. No SDK behaviour changes and no vector changes: every rule affected is informative or documentation guidance, so
-an SDK that conforms to v1.1.0 conforms to v1.2.0. See the decision [2026-11-06. A jackpot round keeps its
+a later gamepass's `x` does not recalculate it. A jackpot round therefore keeps the `x` of the entry during which BoostX
+fixed its result, normally the entry that first sent it, and BoostX computes its X as `playerX` does, so `playerX` on
+that `xBase` gives the X the player saw. The token carries no `xBase`: when the first attempt never reached the partner
+and a later entry changed `x`, the token alone cannot tell which entry's `x` applies. Why: v1.1.0 said that a jackpot
+round sent again could carry another boost and took the `x` of the entry that sent it again. No SDK behaviour changes
+and no vector changes: every rule affected is informative or documentation guidance, so an SDK that conforms to v1.1.0
+conforms to v1.2.0. See the decision [2026-11-06. A jackpot round keeps its
 result](SPEC.md#decision-jackpot-result-fixed).
 
 Rules: [GAMEPASS-44](SPEC.md#gamepass-44), the documentation guidance on which `xBase` a partner passes;
