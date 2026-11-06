@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.2.0
+
+On 2026-11-06 BoostX began fixing a jackpot round's `xBase` and boost before it first sends the round. Every attempt
+sends that result: a retry or a re-send after a reopen carries the same `round` `N + 1`, the same boost and
+`jackpot: true, final: true`, and neither a later gamepass's `x` nor a new exchange rate recalculates it. A jackpot
+round therefore keeps the `x` of the entry during which BoostX fixed its result, normally the entry that first sent it,
+and BoostX computes its X as `playerX` does, so `playerX` on that `xBase` gives the X the player saw. The token carries
+no `xBase`: when the first attempt never reached the partner and a later entry changed `x`, the token alone cannot tell
+which entry's `x` applies. An older jackpot round, one BoostX prepared before the change and had not recorded by then,
+is the exception: its first attempt since the change can carry another `xBase` and boost, and every further attempt
+keeps them. Why: v1.1.0 said that a jackpot round sent again could carry another boost and took the `x` of the entry
+that sent it again. No SDK behaviour changes and no vector changes: every rule affected is informative or documentation
+guidance, so an SDK that conforms to v1.1.0 conforms to v1.2.0. See the decision [2026-11-06. A jackpot round keeps its
+result](SPEC.md#decision-jackpot-result-fixed).
+
+Rules: [GAMEPASS-44](SPEC.md#gamepass-44), the documentation guidance on which `xBase` a partner passes;
+[GAMEPASS-21](SPEC.md#gamepass-21), [INBOUND-49](SPEC.md#inbound-49) and [INBOUND-50](SPEC.md#inbound-50), whose item
+(c) now states the exception for older jackpot rounds, all informative; the jackpot bullet of section 1.6; and the new
+decision in section 13.
+
+The spec now names the partner docs' sections by their current titles: Keys and Test integration (sections 5 and 10),
+Integration details (section 8), and the Settlement page's POST /api/integration/settlement and Retries
+([SETTLE-64](SPEC.md#settle-64)).
+
 ## v1.1.0
 
 Every builder that signs a GID (`gid.build`, `gamepass.create`, `settlement.create`, and `client.submit` through the

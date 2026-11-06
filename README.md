@@ -7,7 +7,7 @@ stores, the tokens a partner signs and verifies, the signed GID, the three endpo
 It is for partners who integrate BoostX in a language that has no reference SDK, for the AI coding agents they use to
 generate one, and for anyone who maintains a partner SDK.
 
-**Spec version: v1.1.0.** Releases are listed in [CHANGELOG.md](CHANGELOG.md), and each is tagged `vX.Y.Z` in this
+**Spec version: v1.2.0.** Releases are listed in [CHANGELOG.md](CHANGELOG.md), and each is tagged `vX.Y.Z` in this
 repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 
 | Path | Content |
