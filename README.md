@@ -7,7 +7,7 @@ stores, the tokens a partner signs and verifies, the signed GID, the three endpo
 It is for partners who integrate BoostX in a language that has no reference SDK, for the AI coding agents they use to
 generate one, and for anyone who maintains a partner SDK.
 
-**Spec version: v1.1.0.** Releases are listed in [CHANGELOG.md](CHANGELOG.md), and each is tagged `vX.Y.Z` in this
+**Spec version: v1.2.0.** Releases are listed in [CHANGELOG.md](CHANGELOG.md), and each is tagged `vX.Y.Z` in this
 repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 
 | Path | Content |
@@ -26,6 +26,9 @@ repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 | Go | [boostxinnovation/boostx-partner-sdk-go](https://github.com/boostxinnovation/boostx-partner-sdk-go) | module `github.com/boostxinnovation/boostx-partner-sdk-go` | v1.1.0 |
 
 Both conform to boostx-partner-sdk-spec v1.1.0.
+
+From v1.2.0 the reference SDKs carry this spec's version number: release vX.Y.Z of each implements spec vX.Y.Z, and
+the spec and both SDKs are released together.
 
 ## Generating an SDK in another language
 
