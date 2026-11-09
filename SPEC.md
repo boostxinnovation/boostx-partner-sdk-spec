@@ -53,18 +53,20 @@ docs, this spec, the reference SDKs and the vectors change together.
 
 This repository is the master of this spec and of the conformance vectors. Two reference SDKs implement it:
 
-| SDK | Repository | Package | Version |
-|-----|-----------|---------|---------|
-| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) | v1.1.0 |
-| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names | v1.1.0 |
+| SDK | Repository | Package |
+|-----|-----------|---------|
+| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) |
+| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names |
 
 How changes flow:
 
 - A change to SDK behaviour starts here: the rule in this spec and the vectors change together, in one spec release
   whose CHANGELOG entry lists the rule ids and vector cases it changes. The reference SDKs follow it.
-- From v1.2.0 the reference SDKs carry this spec's version number: release vX.Y.Z of each implements spec vX.Y.Z. A
-  release of any of the three is a release of all three under that number, so a repository with nothing else to change
-  still gets a release, whose CHANGELOG entry says so.
+- From v1.2.0 the reference SDKs share this spec's major and minor version: release vX.Y.n of each SDK implements spec
+  vX.Y. A change to a rule or a vector is a minor or major spec release, and both SDKs follow it as vX.Y.0, even one
+  with nothing else to change, whose CHANGELOG entry says so. The patch number is each repository's own: a spec patch
+  only clarifies wording, and an SDK patch changes no rule (a fix that brings that SDK in line with this spec, its
+  documentation, or something only that SDK has), so neither needs a release of the others.
 - Every SDK keeps an exact, byte-for-byte mirror of `vectors/`, checked against a pinned commit of this repository, and
   changes it only by moving the pin (section 12.1).
 - A change partners can see also changes the partner docs and gets an entry in their changelog.

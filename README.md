@@ -20,15 +20,12 @@ repository, https://github.com/boostxinnovation/boostx-partner-sdk-spec.
 
 ## Reference SDKs
 
-| Language | Repository | Package | Version |
-|----------|------------|---------|---------|
-| JavaScript and TypeScript | [boostxinnovation/boostx-partner-sdk-js](https://github.com/boostxinnovation/boostx-partner-sdk-js) | npm `@boostxinnovation/partner-sdk` | v1.1.0 |
-| Go | [boostxinnovation/boostx-partner-sdk-go](https://github.com/boostxinnovation/boostx-partner-sdk-go) | module `github.com/boostxinnovation/boostx-partner-sdk-go` | v1.1.0 |
+Two reference SDKs implement this spec: one for JavaScript and TypeScript, npm `@boostxinnovation/partner-sdk`, and
+one for Go, module `github.com/boostxinnovation/boostx-partner-sdk-go`.
 
-Both conform to boostx-partner-sdk-spec v1.1.0.
-
-From v1.2.0 the reference SDKs carry this spec's version number: release vX.Y.Z of each implements spec vX.Y.Z, and
-the spec and both SDKs are released together.
+From v1.2.0 the reference SDKs share this spec's major and minor version: release vX.Y.n of each implements spec vX.Y.
+A change to a rule or a vector releases the spec and both SDKs as vX.Y.0; each repository's patch number moves on its
+own, for a release that changes no rule (for the spec, a wording clarification).
 
 ## Generating an SDK in another language
 
