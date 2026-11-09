@@ -53,10 +53,10 @@ docs, this spec, the reference SDKs and the vectors change together.
 
 This repository is the master of this spec and of the conformance vectors. Two reference SDKs implement it:
 
-| SDK | Repository | Package | Version |
-|-----|-----------|---------|---------|
-| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) | v1.1.0 |
-| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names | v1.1.0 |
+| SDK | Repository | Package |
+|-----|-----------|---------|
+| JavaScript and TypeScript (Node.js, Cloudflare Workers, other Web Crypto runtimes) | `boostxinnovation/boostx-partner-sdk-js` | `@boostxinnovation/partner-sdk` (main entry, plus the Node-only entry `@boostxinnovation/partner-sdk/node`) |
+| Go | `boostxinnovation/boostx-partner-sdk-go` | module `github.com/boostxinnovation/boostx-partner-sdk-go`: packages `keys`, `tokens`, `handlers`, `client`, and the facade package `boostx` that re-exports their public names |
 
 How changes flow:
 
